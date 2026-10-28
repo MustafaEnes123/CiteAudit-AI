@@ -1,0 +1,21 @@
+{
+  "name": "citeaudit-ai",
+  "version": "1.0.0",
+  "description": "Autonomous Scientific & Fact-Checking Verification Runtime with Live Academic Database Grounding",
+  "private": true,
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "serve": "npx serve ."
+  },
+  "keywords": [
+    "citation-verification",
+    "hallucination-detection",
+    "crossref",
+    "pubmed",
+    "openalex",
+    "arxiv",
+    "fact-checking"
+  ],
+  "author": "Mustafa Enes Kayacı",
+  "license": "MIT"
+}

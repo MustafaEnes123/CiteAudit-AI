@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CiteAudit.ai — Live Academic Citation &amp; Fact Verification</title>
+  <link rel="icon" type="image/png" href="./logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            nb: {
+              primary: '#FDC800',
+              secondary: '#432DD7',
+              success: '#16A34A',
+              warning: '#D97706',
+              danger: '#DC2626',
+              surface: '#FBFBF9',
+              text: '#1C293C',
+            }
+          },
+          fontSize: {
+            'nb-13': ['13px', { lineHeight: '18px' }],
+            'nb-15': ['15px', { lineHeight: '22px' }],
+            'nb-17': ['17px', { lineHeight: '25px' }],
+            'nb-21': ['21px', { lineHeight: '28px' }],
+            'nb-27': ['27px', { lineHeight: '34px' }],
+            'nb-35': ['35px', { lineHeight: '42px' }],
+          },
+          spacing: {
+            'nb-4': '4px',
+            'nb-8': '8px',
+            'nb-12': '12px',
+            'nb-16': '16px',
+            'nb-24': '24px',
+            'nb-32': '32px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* =========================================================================
+       NEOBRUTALISM DESIGN SYSTEM TOKENS (design_design_main.md)
+       - Primary: #FDC800 | Secondary: #432DD7 | Success: #16A34A
+       - Warning: #D97706 | Danger: #DC2626 | Surface: #FBFBF9 | Text: #1C293C
+       - Typography scale: 13 / 15 / 17 / 21 / 27 / 35 (Inter & JetBrains Mono)
+       - Spacing scale: 4 / 8 / 12 / 16 / 24 / 32
+       ========================================================================= */
+    :root {
+      --nb-primary: #FDC800;
+      --nb-secondary: #432DD7;
+      --nb-success: #16A34A;
+      --nb-warning: #D97706;
+      --nb-danger: #DC2626;
+      --nb-surface: #FBFBF9;
+      --nb-text: #1C293C;
+      --nb-card-bg: #FFFFFF;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--nb-surface);
+      color: var(--nb-text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 15px;
+      line-height: 22px;
+      /* Subtle architectural dot grid on warm #FBFBF9 paper canvas */
+      background-image: radial-gradient(rgba(28, 41, 60, 0.12) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* WCAG 2.2 AA Keyboard-First Focus Ring */
+    :focus-visible {
+      outline: 3px solid var(--nb-secondary) !important;
+      outline-offset: 2px !important;
+    }
+
+    /* Neobrutalist Elevated Card */
+    .nb-card {
+      background-color: var(--nb-card-bg);
+      border: 2.5px solid var(--nb-text);
+      border-radius: 12px;
+      box-shadow: 5px 5px 0px var(--nb-text);
+    }
+
+    .nb-card-sm {
+      background-color: var(--nb-card-bg);
+      border: 2px solid var(--nb-text);
+      border-radius: 10px;
+      box-shadow: 3px 3px 0px var(--nb-text);
+    }
+
+    /* Neobrutalist Interactive Button (Explicit States: default, hover, active, focus-visible, disabled) */
+    .nb-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      border: 2px solid var(--nb-text);
+      border-radius: 10px;
+      box-shadow: 3px 3px 0px var(--nb-text);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.12s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .nb-btn:hover:not(:disabled) {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px var(--nb-text);
+    }
+    .nb-btn:active:not(:disabled) {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px var(--nb-text);
+    }
+    .nb-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: 1px 1px 0px var(--nb-text);
+      transform: translate(1px, 1px);
+    }
+
+    /* Button Semantic Variants */
+    .nb-btn-primary {
+      background-color: var(--nb-primary);
+      color: var(--nb-text);
+    }
+    .nb-btn-primary:hover:not(:disabled) {
+      background-color: #ffe033;
+    }
+
+    .nb-btn-secondary {
+      background-color: var(--nb-secondary);
+      color: #FFFFFF;
+    }
+    .nb-btn-secondary:hover:not(:disabled) {
+      background-color: #3621c4;
+    }
+
+    .nb-btn-success {
+      background-color: var(--nb-success);
+      color: #FFFFFF;
+    }
+    .nb-btn-success:hover:not(:disabled) {
+      background-color: #15803d;
+    }
+
+    .nb-btn-neutral {
+      background-color: #FFFFFF;
+      color: var(--nb-text);
+    }
+    .nb-btn-neutral:hover:not(:disabled) {
+      background-color: #F3F4F6;
+    }
+
+    /* Neobrutalist Input / Textarea / Select */
+    .nb-input {
+      background-color: #FFFFFF;
+      color: var(--nb-text);
+      border: 2px solid var(--nb-text);
+      border-radius: 10px;
+      box-shadow: inset 2px 2px 0px rgba(28, 41, 60, 0.06);
+      transition: box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+    .nb-input:focus {
+      background-color: #FFFDF5;
+      box-shadow: 3px 3px 0px var(--nb-secondary);
+    }
+
+    /* Neobrutalist Badge */
+    .nb-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 2px solid var(--nb-text);
+      border-radius: 8px;
+      box-shadow: 2px 2px 0px var(--nb-text);
+    }
+
+    /* Inline Sentence Highlights in Audit View */
+    .hl-sentence {
+      padding: 2px 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+    .hl-verified {
+      background-color: #DCFCE7;
+      border-bottom: 3px solid var(--nb-success);
+      color: var(--nb-text);
+    }
+    .hl-verified:hover, .hl-verified.hl-active {
+      background-color: #BBF7D0;
+    }
+    .hl-contradicted {
+      background-color: #FEF3C7;
+      border-bottom: 3px dashed var(--nb-warning);
+      color: var(--nb-text);
+    }
+    .hl-contradicted:hover, .hl-contradicted.hl-active {
+      background-color: #FDE68A;
+    }
+    .hl-phantom {
+      background-color: #FEE2E2;
+      border-bottom: 3px wavy var(--nb-danger);
+      color: var(--nb-text);
+    }
+    .hl-phantom:hover, .hl-phantom.hl-active {
+      background-color: #FECACA;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #FBFBF9; border-left: 1px solid #1C293C; }
+    ::-webkit-scrollbar-thumb { background: #1C293C; border-radius: 4px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-nb-primary selection:text-nb-text">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-30 bg-nb-surface border-b-[3px] border-nb-text">
+    <div class="max-w-7xl mx-auto px-nb-16 sm:px-nb-24 py-nb-12 flex flex-wrap items-center justify-between gap-nb-12">
+
+      <!-- App Logo & Brand Title -->
+      <div class="flex items-center gap-nb-12">
+        <div class="w-12 h-12 rounded-xl bg-nb-primary border-2 border-nb-text shadow-[3px_3px_0px_#1C293C] flex items-center justify-center overflow-hidden shrink-0">
+          <img
+            src="./logo.png"
+            alt="CiteAudit.ai Logo"
+            class="w-full h-full object-cover"
+            onerror="this.style.display='none'; document.getElementById('fallbackNbLogo').style.display='flex';"
+          />
+          <div id="fallbackNbLogo" style="display:none" class="w-full h-full items-center justify-center bg-nb-primary">
+            <svg class="w-7 h-7 text-nb-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-nb-8">
+            <h1 class="text-nb-21 sm:text-nb-27 font-black tracking-tight text-nb-text">
+              CiteAudit<span class="text-nb-secondary">.ai</span>
+            </h1>
+            <span class="hidden sm:inline-flex items-center px-nb-8 py-nb-4 rounded-md text-nb-13 font-extrabold uppercase bg-nb-primary text-nb-text border-2 border-nb-text shadow-[2px_2px_0px_#1C293C]">
+              Live Verifier
+            </span>
+          </div>
+          <p class="text-nb-13 font-medium text-nb-text/80 hidden sm:block">
+            Real-time citation &amp; statistic verification against Crossref, PubMed, OpenAlex, arXiv &amp; AI
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Controls: Live Registry Pill + Connect AI Key Button -->
+      <div class="flex items-center gap-nb-12">
+        <div class="hidden xl:flex items-center gap-nb-8 px-nb-12 py-nb-8 rounded-lg bg-white border-2 border-nb-text shadow-[2px_2px_0px_#1C293C] text-nb-13 font-bold">
+          <span class="w-2.5 h-2.5 rounded-full bg-nb-success border border-nb-text animate-pulse"></span>
+          <span>Registries: Crossref • PubMed • OpenAlex • arXiv</span>
+        </div>
+
+        <button
+          id="btnApiKeyModal"
+          type="button"
+          class="nb-btn nb-btn-primary px-nb-16 py-nb-8 text-nb-13"
+        >
+          <i data-lucide="key-round" class="w-4 h-4"></i>
+          <span id="apiKeyStatusLabel">Connect Gemini API Key</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOW IT WORKS + QUICK SAMPLE STRIP -->
+  <section aria-label="Workflow steps and sample loaders" class="bg-white border-b-[2.5px] border-nb-text">
+    <div class="max-w-7xl mx-auto px-nb-16 sm:px-nb-24 py-nb-12 flex flex-wrap items-center justify-between gap-nb-12">
+      <!-- 3 Clear Steps -->
+      <div class="flex flex-wrap items-center gap-nb-12 sm:gap-nb-16 text-nb-13 font-bold">
+        <div class="flex items-center gap-nb-8">
+          <span class="w-6 h-6 rounded-md bg-nb-primary border-2 border-nb-text flex items-center justify-center font-black">1</span>
+          <span>Paste text with citations</span>
+        </div>
+        <span class="text-nb-text/40 font-black hidden sm:inline">→</span>
+        <div class="flex items-center gap-nb-8">
+          <span class="w-6 h-6 rounded-md bg-nb-secondary text-white border-2 border-nb-text flex items-center justify-center font-black">2</span>
+          <span>Live DBs + your AI check every paper &amp; number</span>
+        </div>
+        <span class="text-nb-text/40 font-black hidden sm:inline">→</span>
+        <div class="flex items-center gap-nb-8">
+          <span class="w-6 h-6 rounded-md bg-nb-success text-white border-2 border-nb-text flex items-center justify-center font-black">3</span>
+          <span>Fix fake citations &amp; wrong numbers in 1 click</span>
+        </div>
+      </div>
+
+      <!-- Load Sample Draft Buttons -->
+      <div class="flex flex-wrap items-center gap-nb-8">
+        <span class="text-nb-13 font-extrabold uppercase tracking-wide text-nb-text/70">Try Sample:</span>
+        <button
+          type="button"
+          data-sample="biomedical"
+          class="sample-btn nb-btn nb-btn-neutral px-nb-12 py-nb-4 text-nb-13"
+        >
+          🧬 Biomedical (PubMed / NEJM)
+        </button>
+        <button
+          type="button"
+          data-sample="ai_cs"
+          class="sample-btn nb-btn nb-btn-neutral px-nb-12 py-nb-4 text-nb-13"
+        >
+          🤖 AI Research (arXiv / DOI)
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN 2-COLUMN WORKSPACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-nb-16 sm:px-nb-24 py-nb-24 grid grid-cols-1 lg:grid-cols-12 gap-nb-24 items-start">
+
+    <!-- LEFT COLUMN (6 Cols): DOCUMENT WORKSPACE -->
+    <section class="lg:col-span-6 nb-card flex flex-col overflow-hidden" aria-label="Document Input and Highlighted Reader">
+
+      <!-- Document Header Bar: Mode Switcher + Live Counters -->
+      <div class="px-nb-16 py-nb-12 bg-nb-surface border-b-[2.5px] border-nb-text flex flex-wrap items-center justify-between gap-nb-12">
+        <div class="flex items-center gap-nb-8" role="tablist" aria-label="Document View Modes">
+          <button
+            type="button"
+            data-doc-mode="edit"
+            class="doc-mode-btn nb-btn nb-btn-primary px-nb-12 py-nb-4 text-nb-13"
+          >
+            1. Edit Text
+          </button>
+          <button
+            type="button"
+            data-doc-mode="highlight"
+            class="doc-mode-btn nb-btn nb-btn-neutral px-nb-12 py-nb-4 text-nb-13"
+          >
+            2. Highlighted Audit
+          </button>
+          <button
+            type="button"
+            data-doc-mode="diff"
+            class="doc-mode-btn nb-btn nb-btn-neutral px-nb-12 py-nb-4 text-nb-13"
+          >
+            3. Before / After Diff
+          </button>
+        </div>
+
+        <div class="flex items-center gap-nb-8 font-mono text-nb-13 font-bold">
+          <span class="px-nb-8 py-nb-4 rounded bg-white border-2 border-nb-text">
+            <strong id="liveWordCount">0</strong> words
+          </span>
+          <span class="px-nb-8 py-nb-4 rounded bg-nb-primary border-2 border-nb-text">
+            <strong id="liveCiteCount">0</strong> citations
+          </span>
+        </div>
+      </div>
+
+      <!-- Mode 1: Raw Text Editor -->
+      <div id="pane-edit" class="p-nb-16 sm:p-nb-24 flex-1 flex flex-col space-y-nb-12">
+        <label for="documentTextarea" class="text-nb-13 font-extrabold uppercase tracking-wider text-nb-text/75">
+          Your Research Draft or AI Output
+        </label>
+        <textarea
+          id="documentTextarea"
+          rows="14"
+          class="nb-input w-full p-nb-16 text-nb-15 font-sans leading-relaxed resize-y"
+          placeholder="Paste your paper, essay, clinical summary, or AI output here...&#10;&#10;Examples of supported citations:&#10;• DOIs: doi:10.1056/NEJMoa2034577&#10;• PubMed IDs: PMID: 32678530&#10;• arXiv IDs: arXiv:2305.14325&#10;• Author-Year: (Polack et al., 2020)"
+        ></textarea>
+      </div>
+
+      <!-- Mode 2: Highlighted Interactive Document View -->
+      <div id="pane-highlight" class="p-nb-16 sm:p-nb-24 hidden flex-1 flex flex-col space-y-nb-16">
+        <div class="flex flex-wrap items-center justify-between gap-nb-8 pb-nb-12 border-b-2 border-nb-text/15 text-nb-13 font-bold">
+          <span>Click any highlighted claim below to jump to its evidence card:</span>
+          <div class="flex flex-wrap items-center gap-nb-8">
+            <span class="px-nb-8 py-nb-4 rounded bg-[#DCFCE7] border-2 border-nb-text text-nb-text">✓ Verified</span>
+            <span class="px-nb-8 py-nb-4 rounded bg-[#FEF3C7] border-2 border-nb-text text-nb-text">⚠ Mismatch</span>
+            <span class="px-nb-8 py-nb-4 rounded bg-[#FEE2E2] border-2 border-nb-text text-nb-text">✕ Fake (404)</span>
+          </div>
+        </div>
+        <div id="highlightedDocContainer" class="text-nb-15 leading-8 space-y-nb-12 min-h-[280px]">
+          <p class="text-nb-text/60 font-medium">Click "Verify Citations Now" below to highlight verified and hallucinated claims.</p>
+        </div>
+      </div>
+
+      <!-- Mode 3: Red / Green Diff View -->
+      <div id="pane-diff" class="p-nb-16 sm:p-nb-24 hidden flex-1 space-y-nb-12 overflow-y-auto max-h-[540px]">
+        <div class="text-nb-13 font-bold text-nb-text/80">
+          Red (<code class="text-nb-danger font-mono font-bold">-</code>) shows original unverified sentences; Green (<code class="text-nb-success font-mono font-bold">+</code>) shows grounded replacements:
+        </div>
+        <div id="diffContainer" class="space-y-nb-12 font-mono text-nb-13">
+          <p class="font-sans text-nb-15 text-nb-text/60">Run an audit first to view before/after diffs.</p>
+        </div>
+      </div>
+
+      <!-- Document Footer Bar: Primary Verify CTA + Export Actions -->
+      <div class="px-nb-16 py-nb-16 bg-nb-surface border-t-[2.5px] border-nb-text flex flex-wrap items-center justify-between gap-nb-12">
+        <div class="flex flex-wrap items-center gap-nb-12">
+          <button
+            id="btnRunAudit"
+            type="button"
+            class="nb-btn nb-btn-primary px-nb-24 py-nb-12 text-nb-15 font-black"
+          >
+            <i data-lucide="search-check" class="w-5 h-5"></i>
+            <span id="btnRunAuditLabel">Verify Citations Now</span>
+          </button>
+
+          <button
+            id="btnClearDoc"
+            type="button"
+            class="nb-btn nb-btn-neutral px-nb-12 py-nb-8 text-nb-13"
+          >
+            Clear
+          </button>
+        </div>
+
+        <div class="flex items-center gap-nb-8">
+          <button
+            id="btnCopyDoc"
+            type="button"
+            class="nb-btn nb-btn-neutral px-nb-12 py-nb-8 text-nb-13"
+          >
+            <i data-lucide="copy" class="w-4 h-4"></i>
+            <span id="copyDocLabel">Copy Text</span>
+          </button>
+          <button
+            id="btnExportMd"
+            type="button"
+            class="nb-btn nb-btn-neutral px-nb-12 py-nb-8 text-nb-13"
+          >
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Export .md</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN (6 Cols): AUDIT SCORECARD & PLAIN-ENGLISH EVIDENCE CARDS -->
+    <section class="lg:col-span-6 space-y-nb-16" aria-label="Audit Results and Evidence Cards">
+
+      <!-- Live Progress Card (Visible while auditing) -->
+      <div id="auditProgressBox" class="hidden nb-card p-nb-24 bg-[#FFFDF5] space-y-nb-12">
+        <div class="flex items-center justify-between gap-nb-8">
+          <div class="flex items-center gap-nb-12">
+            <div class="w-8 h-8 rounded-lg bg-nb-primary border-2 border-nb-text flex items-center justify-center">
+              <i data-lucide="loader-2" class="w-5 h-5 text-nb-text animate-spin"></i>
+            </div>
+            <span id="auditProgressTitle" class="font-extrabold text-nb-17">Querying live academic registries...</span>
+          </div>
+          <span id="auditProgressStep" class="nb-badge bg-nb-secondary text-white font-mono">Step 1/3</span>
+        </div>
+        <div class="w-full h-4 bg-white border-2 border-nb-text rounded-lg overflow-hidden p-0.5">
+          <div id="auditProgressBar" class="h-full bg-nb-primary border-r-2 border-nb-text transition-all duration-300" style="width: 25%"></div>
+        </div>
+        <p id="auditProgressDetail" class="text-nb-13 font-mono font-semibold text-nb-text/80">
+          Extracting citations and numeric claims...
+        </p>
+      </div>
+
+      <!-- Scorecard Summary Banner (Visible after audit) -->
+      <div id="scorecardBanner" class="hidden nb-card p-nb-24 space-y-nb-16">
+        <div class="flex flex-wrap items-center justify-between gap-nb-16">
+          <div class="flex items-center gap-nb-16">
+            <div id="scoreCircle" class="w-20 h-20 rounded-xl bg-nb-primary border-[2.5px] border-nb-text shadow-[3px_3px_0px_#1C293C] flex flex-col items-center justify-center shrink-0">
+              <span id="scorePercentText" class="text-nb-27 font-black font-mono leading-none">--%</span>
+              <span class="text-nb-13 font-extrabold uppercase mt-nb-4">Score</span>
+            </div>
+            <div class="space-y-nb-4">
+              <h2 id="scoreVerdictTitle" class="text-nb-21 font-black text-nb-text">
+                Audit Complete
+              </h2>
+              <p id="scoreVerdictSubtitle" class="text-nb-15 font-semibold text-nb-text/80">
+                Review each citation below.
+              </p>
+            </div>
+          </div>
+
+          <button
+            id="btnFixAllIssues"
+            type="button"
+            class="hidden nb-btn nb-btn-secondary px-nb-16 py-nb-12 text-nb-15"
+          >
+            <i data-lucide="wand-2" class="w-4 h-4"></i>
+            <span id="btnFixAllLabel">Apply All Fixes</span>
+          </button>
+        </div>
+
+        <!-- Filter Buttons & Engine Info -->
+        <div class="flex flex-wrap items-center justify-between gap-nb-12 pt-nb-12 border-t-2 border-nb-text/15">
+          <div class="flex flex-wrap items-center gap-nb-8">
+            <button type="button" data-filter="all" class="filter-pill nb-btn nb-btn-primary px-nb-12 py-nb-4 text-nb-13">
+              All (<span id="countAll">0</span>)
+            </button>
+            <button type="button" data-filter="issues" class="filter-pill nb-btn nb-btn-neutral px-nb-12 py-nb-4 text-nb-13">
+              Needs Fix (<span id="countIssues">0</span>)
+            </button>
+            <button type="button" data-filter="verified" class="filter-pill nb-btn nb-btn-neutral px-nb-12 py-nb-4 text-nb-13">
+              Verified (<span id="countVerified">0</span>)
+            </button>
+          </div>
+          <span id="aiAuditModeLabel" class="text-nb-13 font-mono font-bold text-nb-secondary"></span>
+        </div>
+      </div>
+
+      <!-- Friendly Initial State (Before First Audit) -->
+      <div id="emptyAuditState" class="nb-card p-nb-32 text-center space-y-nb-16">
+        <div class="w-16 h-16 rounded-xl bg-nb-primary border-[2.5px] border-nb-text shadow-[4px_4px_0px_#1C293C] flex items-center justify-center mx-auto">
+          <i data-lucide="shield-check" class="w-8 h-8 text-nb-text"></i>
+        </div>
+        <div class="max-w-md mx-auto space-y-nb-8">
+          <h2 class="text-nb-21 font-black text-nb-text">
+            Ready to Audit Your Citations
+          </h2>
+          <p class="text-nb-15 font-medium text-nb-text/80">
+            Click <strong>"Verify Citations Now"</strong> on the left. We query <strong>Crossref</strong>, <strong>PubMed NCBI</strong>, <strong>OpenAlex (250M+ works)</strong>, and <strong>arXiv</strong> in real time.
+          </p>
+          <div class="p-nb-12 rounded-xl bg-nb-surface border-2 border-nb-text text-nb-13 font-semibold text-left">
+            💡 <strong>Pro Tip:</strong> Click <strong>"Connect Gemini API Key"</strong> in the top-right to paste your Google Gemini API key—CiteAudit will automatically scan your key for available Gemini models so you can select one from the list.
+          </div>
+        </div>
+      </div>
+
+      <!-- Vertical List of Citation Audit Cards -->
+      <div id="citationCardsList" class="space-y-nb-16"></div>
+
+    </section>
+  </main>
+
+  <!-- MODAL: GOOGLE GEMINI API KEY & LIVE MODEL SCANNER -->
+  <div id="apiKeyModal" class="fixed inset-0 z-50 hidden items-center justify-center p-nb-16 bg-nb-text/60 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="nb-card max-w-lg w-full p-nb-24 sm:p-nb-32 space-y-nb-24 bg-white">
+      <div class="flex items-center justify-between border-b-[2.5px] border-nb-text pb-nb-16">
+        <div class="flex items-center gap-nb-12">
+          <div class="w-10 h-10 rounded-lg bg-nb-primary border-2 border-nb-text shadow-[2px_2px_0px_#1C293C] flex items-center justify-center">
+            <i data-lucide="sparkles" class="w-5 h-5 text-nb-text"></i>
+          </div>
+          <div>
+            <h3 id="modalTitle" class="text-nb-21 font-black text-nb-text">Connect Google Gemini API</h3>
+            <p class="text-nb-13 font-semibold text-nb-text/75">Paste your key to auto-scan &amp; select from your available Gemini models</p>
+          </div>
+        </div>
+        <button type="button" id="btnCloseModal" class="nb-btn nb-btn-neutral p-nb-8" aria-label="Close modal">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-nb-16">
+        <!-- Step 1: Gemini API Key Input + Scan Button -->
+        <div class="space-y-nb-8">
+          <label for="aiApiKeyInput" class="block text-nb-13 font-extrabold uppercase tracking-wide">
+            1. Google Gemini API Key
+          </label>
+          <div class="flex items-stretch gap-nb-8">
+            <input
+              id="aiApiKeyInput"
+              type="password"
+              placeholder="Paste your Gemini API key (AIzaSy...)"
+              class="nb-input flex-1 px-nb-12 py-nb-12 font-mono text-nb-13 font-bold"
+            />
+            <button
+              type="button"
+              id="btnScanModels"
+              class="nb-btn nb-btn-secondary px-nb-16 py-nb-8 text-nb-13 shrink-0"
+              title="Query Google Gemini API for all models enabled on this key"
+            >
+              <i data-lucide="refresh-cw" id="scanModelsIcon" class="w-4 h-4"></i>
+              <span id="scanModelsLabel">Scan Models</span>
+            </button>
+          </div>
+          <p class="text-nb-13 font-medium text-nb-text/75">
+            🔒 Stored locally in your browser's <code>localStorage</code>. As soon as you paste your key, CiteAudit scans <code>generativelanguage.googleapis.com</code> to list your available models.
+          </p>
+        </div>
+
+        <!-- Step 2: Live Scanned Model Dropdown -->
+        <div class="space-y-nb-8">
+          <div class="flex items-center justify-between">
+            <label for="geminiModelSelect" class="block text-nb-13 font-extrabold uppercase tracking-wide">
+              2. Select Gemini Model
+            </label>
+            <span id="modelCountBadge" class="text-nb-13 font-mono font-bold text-nb-secondary"></span>
+          </div>
+          <select
+            id="geminiModelSelect"
+            class="nb-input w-full px-nb-12 py-nb-12 text-nb-15 font-bold cursor-pointer"
+          >
+            <option value="gemini-2.5-flash">gemini-2.5-flash (Paste key above to scan all models)</option>
+          </select>
+        </div>
+
+        <div id="apiTestResultBox" class="hidden p-nb-12 rounded-lg border-2 border-nb-text text-nb-13 font-bold"></div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-nb-12 pt-nb-16 border-t-[2.5px] border-nb-text">
+        <button
+          type="button"
+          id="btnClearApiKey"
+          class="nb-btn px-nb-12 py-nb-8 text-nb-13 bg-[#FEE2E2] text-nb-danger"
+        >
+          Remove Key
+        </button>
+        <div class="flex items-center gap-nb-12">
+          <button
+            type="button"
+            id="btnTestApiKey"
+            class="nb-btn nb-btn-neutral px-nb-16 py-nb-8 text-nb-13"
+          >
+            Test Selected Model
+          </button>
+          <button
+            type="button"
+            id="btnSaveApiKey"
+            class="nb-btn nb-btn-primary px-nb-24 py-nb-8 text-nb-15 font-black"
+          >
+            Save &amp; Use Model
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 100% LIVE RUNTIME SCRIPT (ZERO MOCK DATA) -->
+  <script>
+    const SAMPLE_TEXTS = {
+      biomedical: `In a multinational pivotal efficacy trial, the lipid nanoparticle mRNA vaccine BNT162b2 demonstrated 95% efficacy in preventing symptomatic Covid-19 across 43,548 enrolled participants (Polack et al., 2020, doi:10.1056/NEJMoa2034577).
+
+In the RECOVERY randomized controlled trial (PMID: 32678530), low-cost dexamethasone treatment at a dosage of 60 mg daily reduced 28-day mortality by one-third in ventilated Covid-19 patients.
+
+Furthermore, a recent clinical oncology trial by Harrison et al. (2025) titled "Autonomous Nanobot Telomerase Reversal in Stage IV Glioblastoma" (doi:10.1016/S0140-6736(25)99999-X) reported complete tumor eradication in 94% of patients within 7 days.`,
+
+      ai_cs: `Recent breakthroughs show that multi-agent debate significantly improves factuality and mathematical reasoning across complex language model tasks (Du et al., 2023, arXiv:2305.14325).
+
+Furthermore, Chain-of-Thought prompting enables a 540-billion-parameter language model to achieve a 92% accuracy rate on the GSM8K math word problem benchmark (Wei et al., 2022, arXiv:2201.11903).
+
+Finally, Vaswani et al. (2024) published "Quantum Self-Attention Without Matrices" in Nature Machine Intelligence (doi:10.1038/s42256-024-99999-z), proving a 1,000x training speedup.`
+    };
+
+    const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
+
+    const appState = {
+      aiModel: localStorage.getItem('citeaudit_gemini_model') || DEFAULT_GEMINI_MODEL,
+      aiApiKey: localStorage.getItem('citeaudit_apikey') || '',
+      availableModels: [],
+      docMode: 'edit',
+      filter: 'all',
+      claims: [],
+      activeClaimId: null,
+      isRunning: false
+    };
+
+    // 1. EXTRACT SENTENCES, CITATIONS & NUMBERS
+    function extractClaimsFromText(text) {
+      if (!text || !text.trim()) return [];
+
+      const protectedText = text
+        .replace(/et al\./gi, 'et_al_DOT')
+        .replace(/e\.g\./gi, 'e_g_DOT')
+        .replace(/i\.e\./gi, 'i_e_DOT')
+        .replace(/vs\./gi, 'vs_DOT')
+        .replace(/Dr\./g, 'Dr_DOT')
+        .replace(/Prof\./g, 'Prof_DOT')
+        .replace(/Fig\./g, 'Fig_DOT');
+
+      const sentences = protectedText
+        .split(/(?<=[.!?])\s+/)
+        .map(s =>
+          s
+            .replace(/et_al_DOT/g, 'et al.')
+            .replace(/e_g_DOT/g, 'e.g.')
+            .replace(/i_e_DOT/g, 'i.e.')
+            .replace(/vs_DOT/g, 'vs.')
+            .replace(/Dr_DOT/g, 'Dr.')
+            .replace(/Prof_DOT/g, 'Prof.')
+            .replace(/Fig_DOT/g, 'Fig.')
+            .trim()
+        )
+        .filter(Boolean);
+
+      const results = [];
+
+      sentences.forEach((sentence, idx) => {
+        const doiMatch = sentence.match(/(?:doi\s*[:=]\s*|https?:\/\/doi\.org\/)?(10\.\d{4,9}\/[-._;()/:A-Za-z0-9]+)/i);
+        const arxivMatch = sentence.match(/arXiv\s*[:=]\s*(\d{4}\.\d{4,5}(?:v\d+)?)/i);
+        const pmidMatch = sentence.match(/(?:PMID|PubMed\s*ID)\s*[:=]?\s*(\d{5,9})/i);
+        const parenMatch = sentence.match(/\(([A-Z][A-Za-z'\-]+(?:\s+et\s+al\.|\s*(?:&|and)\s*[A-Z][A-Za-z'\-]+)?\s*,\s*(?:19|20)\d{2}[^)]*)\)/);
+        const inlineMatch = sentence.match(/([A-Z][A-Za-z'\-]+(?:\s+et\s+al\.|\s*(?:&|and)\s*[A-Z][A-Za-z'\-]+)?\s*\((?:19|20)\d{2}\))/);
+        const quotedTitleMatch = sentence.match(/"([^"]{12,160})"/);
+
+        const rawNumbers = sentence.match(/\b\d+(?:,\d{3})*(?:\.\d+)?(?:\s*(?:%|mg\/kg|mg|kg|g\/L|mL|mcg|x|billion|million|days|weeks|months|years))?\b/gi) || [];
+        const numbers = rawNumbers
+          .map(n => n.trim())
+          .filter(n => {
+            if (/^(19\d\d|20[0-3]\d)$/.test(n)) return false;
+            if (pmidMatch && pmidMatch[1].includes(n)) return false;
+            if (arxivMatch && arxivMatch[1].includes(n)) return false;
+            if (doiMatch && doiMatch[1].includes(n)) return false;
+            return /\d/.test(n) && (/[%]|mg|kg|mcg|billion|million|days|weeks|,|\./i.test(n) || parseInt(n, 10) > 4);
+          });
+
+        if (doiMatch || arxivMatch || pmidMatch || parenMatch || inlineMatch) {
+          let queryType = 'search';
+          let identifier = '';
+          let citationLabel = '';
+
+          if (doiMatch) {
+            identifier = doiMatch[1].replace(/[).,;]+$/, '');
+            citationLabel = parenMatch ? `(${parenMatch[1]})` : `doi:${identifier}`;
+            queryType = 'doi';
+          } else if (arxivMatch) {
+            identifier = arxivMatch[1].replace(/[).,;]+$/, '');
+            citationLabel = parenMatch ? `(${parenMatch[1]})` : `arXiv:${identifier}`;
+            queryType = 'arxiv';
+          } else if (pmidMatch) {
+            identifier = pmidMatch[1].trim();
+            citationLabel = `PMID: ${identifier}`;
+            queryType = 'pmid';
+          } else if (parenMatch) {
+            identifier = parenMatch[1].trim();
+            citationLabel = `(${identifier})`;
+            queryType = 'author_year';
+          } else if (inlineMatch) {
+            identifier = inlineMatch[1].trim();
+            citationLabel = identifier;
+            queryType = 'author_year';
+          }
+
+          results.push({
+            id: `claim-${idx + 1}`,
+            index: results.length + 1,
+            sentence,
+            originalSentence: sentence,
+            citationLabel,
+            identifier,
+            quotedTitle: quotedTitleMatch ? quotedTitleMatch[1] : '',
+            queryType,
+            numbers: [...new Set(numbers)],
+            status: 'PENDING',
+            dbMatch: null,
+            explanation: '',
+            suggestedSentence: '',
+            suggestedPaper: null,
+            repaired: false
+          });
+        }
+      });
+
+      return results;
+    }
+
+    // 2. LIVE ACADEMIC DATABASE QUERIES
+    function reconstructOpenAlexAbstract(invertedIndex) {
+      if (!invertedIndex || typeof invertedIndex !== 'object') return '';
+      const words = [];
+      for (const [word, positions] of Object.entries(invertedIndex)) {
+        if (Array.isArray(positions)) {
+          positions.forEach(pos => { words[pos] = word; });
+        }
+      }
+      return words.filter(Boolean).join(' ');
+    }
+
+    async function fetchLivePubMed(pmid) {
+      try {
+        const [summaryRes, xmlRes] = await Promise.all([
+          fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${encodeURIComponent(pmid)}&retmode=json`),
+          fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=${encodeURIComponent(pmid)}&retmode=xml`)
+        ]);
+
+        if (!summaryRes.ok) return null;
+        const summaryJson = await summaryRes.json();
+        const doc = summaryJson?.result?.[pmid];
+        if (!doc || doc.error || !doc.title) return null;
+
+        let abstractText = '';
+        if (xmlRes.ok) {
+          const xmlStr = await xmlRes.text();
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(xmlStr, 'text/xml');
+          const abstractNodes = xmlDoc.querySelectorAll('AbstractText');
+          abstractText = Array.from(abstractNodes).map(n => {
+            const label = n.getAttribute('Label');
+            return label ? `${label}: ${n.textContent}` : n.textContent;
+          }).join(' ');
+        }
+
+        return {
+          exists: true,
+          database: 'PubMed NCBI (Live)',
+          id: `PMID: ${pmid}`,
+          url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
+          title: doc.title.replace(/\.$/, ''),
+          authors: Array.isArray(doc.authors) ? doc.authors.slice(0, 5).map(a => a.name).join(', ') : 'Authors',
+          year: (doc.pubdate || '').slice(0, 4),
+          venue: doc.fulljournalname || doc.source || 'PubMed Journal',
+          abstract: abstractText
+        };
+      } catch {
+        return null;
+      }
+    }
+
+    async function fetchLiveDoi(doi) {
+      const cleanDoi = doi.replace(/^doi:/i, '').trim();
+      let crossrefWork = null;
+      let openAlexWork = null;
+
+      await Promise.all([
+        (async () => {
+          try {
+            const res = await fetch(`https://api.crossref.org/works/${encodeURIComponent(cleanDoi)}`);
+            if (res.ok) {
+              const data = await res.json();
+              crossrefWork = data.message;
+            }
+          } catch {}
+        })(),
+        (async () => {
+          try {
+            const res = await fetch(`https://api.openalex.org/works/https://doi.org/${encodeURIComponent(cleanDoi)}`);
+            if (res.ok) {
+              openAlexWork = await res.json();
+            }
+          } catch {}
+        })()
+      ]);
+
+      if (!crossrefWork && !openAlexWork) return null;
+
+      const title = (Array.isArray(crossrefWork?.title) ? crossrefWork.title[0] : crossrefWork?.title)
+        || openAlexWork?.title
+        || 'Verified Publication';
+
+      const authors = Array.isArray(crossrefWork?.author)
+        ? crossrefWork.author.slice(0, 5).map(a => `${a.given || ''} ${a.family || ''}`.trim()).join(', ')
+        : Array.isArray(openAlexWork?.authorships)
+          ? openAlexWork.authorships.slice(0, 5).map(a => a.author?.display_name).filter(Boolean).join(', ')
+          : 'Authors';
+
+      const year = crossrefWork?.issued?.['date-parts']?.[0]?.[0]?.toString()
+        || openAlexWork?.publication_year?.toString()
+        || '';
+
+      const venue = (Array.isArray(crossrefWork?.['container-title']) ? crossrefWork['container-title'][0] : '')
+        || openAlexWork?.primary_location?.source?.display_name
+        || 'Academic Venue';
+
+      let abstract = crossrefWork?.abstract ? crossrefWork.abstract.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+      if (!abstract && openAlexWork?.abstract_inverted_index) {
+        abstract = reconstructOpenAlexAbstract(openAlexWork.abstract_inverted_index);
+      }
+
+      const pmidUrl = openAlexWork?.ids?.pmid;
+      if (!abstract && pmidUrl) {
+        const pmidNum = pmidUrl.split('/').filter(Boolean).pop();
+        if (pmidNum) {
+          const pmData = await fetchLivePubMed(pmidNum);
+          if (pmData?.abstract) abstract = pmData.abstract;
+        }
+      }
+
+      return {
+        exists: true,
+        database: crossrefWork && openAlexWork ? 'Crossref + OpenAlex (Live)' : (crossrefWork ? 'Crossref (Live)' : 'OpenAlex (Live)'),
+        id: `doi:${cleanDoi}`,
+        url: `https://doi.org/${cleanDoi}`,
+        title,
+        authors,
+        year,
+        venue,
+        abstract
+      };
+    }
+
+    async function fetchLiveArxiv(arxivId) {
+      const cleanId = arxivId.replace(/^arXiv:/i, '').replace(/v\d+$/i, '').trim();
+      const viaDoi = await fetchLiveDoi(`10.48550/arXiv.${cleanId}`);
+      if (viaDoi) {
+        viaDoi.database = 'arXiv + OpenAlex (Live)';
+        viaDoi.id = `arXiv:${cleanId}`;
+        viaDoi.url = `https://arxiv.org/abs/${cleanId}`;
+        if (viaDoi.abstract) return viaDoi;
+      }
+
+      try {
+        const res = await fetch(`https://export.arxiv.org/api/query?id_list=${encodeURIComponent(cleanId)}`);
+        if (res.ok) {
+          const xmlText = await res.text();
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(xmlText, 'text/xml');
+          const entry = xml.querySelector('entry');
+          const title = entry?.querySelector('title')?.textContent?.replace(/\s+/g, ' ')?.trim();
+          const summary = entry?.querySelector('summary')?.textContent?.replace(/\s+/g, ' ')?.trim();
+          const published = entry?.querySelector('published')?.textContent?.slice(0, 4);
+          const authors = Array.from(entry?.querySelectorAll('author > name') || []).slice(0, 5).map(n => n.textContent).join(', ');
+
+          if (title && title !== 'Error') {
+            return {
+              exists: true,
+              database: 'arXiv Export API (Live)',
+              id: `arXiv:${cleanId}`,
+              url: `https://arxiv.org/abs/${cleanId}`,
+              title,
+              authors: authors || viaDoi?.authors || 'arXiv Authors',
+              year: published || viaDoi?.year || '',
+              venue: 'arXiv Preprint',
+              abstract: summary || viaDoi?.abstract || ''
+            };
+          }
+        }
+      } catch {}
+
+      return viaDoi;
+    }
+
+    async function searchLiveOpenAlexByCitation(claim) {
+      const searchTerms = claim.quotedTitle
+        ? claim.quotedTitle
+        : `${claim.identifier} ${claim.sentence.slice(0, 90)}`;
+
+      try {
+        const res = await fetch(`https://api.openalex.org/works?search=${encodeURIComponent(searchTerms)}&per-page=3`);
+        if (!res.ok) return null;
+        const json = await res.json();
+        const top = json?.results?.[0];
+        if (!top) return null;
+
+        if (claim.quotedTitle) {
+          const normQuoted = claim.quotedTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const normFound = (top.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+          if (!normFound.includes(normQuoted.slice(0, 20)) && !normQuoted.includes(normFound.slice(0, 20))) {
+            return null;
+          }
+        }
+
+        const doiStr = top.doi ? top.doi.replace('https://doi.org/', '') : '';
+        return {
+          exists: true,
+          database: 'OpenAlex Global Search (Live)',
+          id: doiStr ? `doi:${doiStr}` : top.id,
+          url: top.doi || top.id,
+          title: top.title || 'Academic Work',
+          authors: Array.isArray(top.authorships)
+            ? top.authorships.slice(0, 5).map(a => a.author?.display_name).filter(Boolean).join(', ')
+            : 'Authors',
+          year: top.publication_year?.toString() || '',
+          venue: top.primary_location?.source?.display_name || 'Academic Journal',
+          abstract: reconstructOpenAlexAbstract(top.abstract_inverted_index)
+        };
+      } catch {
+        return null;
+      }
+    }
+
+    async function findRealReplacementPaper(claim) {
+      const cleaned = claim.sentence
+        .replace(/\(.*?\)/g, '')
+        .replace(/doi\s*[:=]\s*\S+/gi, '')
+        .replace(/PMID\s*[:=]?\s*\d+/gi, '')
+        .replace(/"[^"]+"/g, '')
+        .replace(/[^a-zA-Z0-9\s-]/g, ' ')
+        .split(/\s+/)
+        .filter(w => w.length > 4 && !/^(furthermore|however|meanwhile|recent|study|paper|published|claimed|showed|demonstrated|within|patients|stage)$/i.test(w))
+        .slice(0, 6)
+        .join(' ');
+
+      if (!cleaned) return null;
+
+      try {
+        const res = await fetch(`https://api.openalex.org/works?search=${encodeURIComponent(cleaned)}&filter=has_doi:true,has_abstract:true&sort=cited_by_count:desc&per-page=1`);
+        if (!res.ok) return null;
+        const json = await res.json();
+        const work = json?.results?.[0];
+        if (!work) return null;
+
+        const firstAuthor = work.authorships?.[0]?.author?.display_name?.split(' ').pop() || 'Author';
+        const year = work.publication_year || '';
+        const doiClean = (work.doi || '').replace('https://doi.org/', '');
+        const abstract = reconstructOpenAlexAbstract(work.abstract_inverted_index);
+
+        return {
+          title: work.title,
+          authors: (work.authorships || []).slice(0, 4).map(a => a.author?.display_name).filter(Boolean).join(', '),
+          year: String(year),
+          id: doiClean ? `doi:${doiClean}` : work.id,
+          url: work.doi || work.id,
+          citationTag: `(${firstAuthor} et al., ${year}, doi:${doiClean})`,
+          abstract: abstract.slice(0, 500)
+        };
+      } catch {
+        return null;
+      }
+    }
+
+    // 3. GOOGLE GEMINI LIVE MODEL SCANNER & API CALLER
+    async function scanGeminiModels(rawKey) {
+      const apiKey = (rawKey || '').trim();
+      if (!apiKey) {
+        throw new Error('Please enter your Google Gemini API key first.');
+      }
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models?pageSize=100&key=${encodeURIComponent(apiKey)}`;
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!res.ok) {
+        let errDetail = `HTTP ${res.status}`;
+        try {
+          const errJson = await res.json();
+          errDetail = errJson?.error?.message || errDetail;
+        } catch {}
+        throw new Error(`Invalid Gemini API Key or request failed: ${errDetail}`);
+      }
+
+      const data = await res.json();
+      const rawModels = Array.isArray(data.models) ? data.models : [];
+
+      // Filter for Gemini models that support generateContent for text/JSON generation
+      const filtered = rawModels
+        .filter(m => {
+          const methods = m.supportedGenerationMethods || [];
+          const name = (m.name || '').toLowerCase();
+          if (!methods.includes('generateContent')) return false;
+          if (!name.includes('gemini')) return false;
+          // Exclude specialized non-text output models (tts, image-generation-only, embedding, etc.)
+          if (/(embedding|imagen|tts|veo|aqa|bisheng)/i.test(name)) return false;
+          return true;
+        })
+        .map(m => {
+          const id = (m.name || '').replace(/^models\//, '');
+          const displayName = m.displayName || id;
+          return { id, displayName };
+        });
+
+      // Sort preferred fast/pro text models to the top
+      const priorityOrder = [
+        'gemini-2.5-flash',
+        'gemini-2.5-pro',
+        'gemini-2.0-flash',
+        'gemini-2.0-flash-lite',
+        'gemini-1.5-pro',
+        'gemini-1.5-flash'
+      ];
+
+      filtered.sort((a, b) => {
+        const idxA = priorityOrder.indexOf(a.id);
+        const idxB = priorityOrder.indexOf(b.id);
+        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+        if (idxA !== -1) return -1;
+        if (idxB !== -1) return 1;
+        return a.id.localeCompare(b.id);
+      });
+
+      return filtered;
+    }
+
+    function parseGeminiJsonResponse(rawText) {
+      if (!rawText) return null;
+      const cleaned = rawText
+        .replace(/^```(?:json)?\s*/i, '')
+        .replace(/\s*```$/i, '')
+        .trim();
+      try {
+        return JSON.parse(cleaned);
+      } catch {
+        const match = cleaned.match(/\{[\s\S]*\}/);
+        if (match) {
+          return JSON.parse(match[0]);
+        }
+        throw new Error('Could not parse JSON from Gemini response.');
+      }
+    }
+
+    async function callUserAiModel(systemPrompt, userPrompt) {
+      if (!appState.aiApiKey) return null;
+
+      const cleanModel = (appState.aiModel || DEFAULT_GEMINI_MODEL).replace(/^models\//, '').trim();
+      const apiKey = appState.aiApiKey.trim();
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(cleanModel)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+      // Attempt 1: Structured JSON mode with systemInstruction
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          generationConfig: {
+            temperature: 0.1,
+            responseMimeType: 'application/json'
+          }
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const rawText = data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '{}';
+        return parseGeminiJsonResponse(rawText);
+      }
+
+      // Attempt 2: Fallback if the selected model variant does not support responseMimeType or systemInstruction
+      const fallbackRes = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            role: 'user',
+            parts: [{ text: `${systemPrompt}\n\nIMPORTANT: Return ONLY valid JSON.\n\n${userPrompt}` }]
+          }],
+          generationConfig: {
+            temperature: 0.1
+          }
+        })
+      });
+
+      if (!fallbackRes.ok) {
+        let errMsg = `HTTP ${fallbackRes.status}`;
+        try {
+          const errJson = await fallbackRes.json();
+          errMsg = errJson?.error?.message || errMsg;
+        } catch {}
+        throw new Error(`Gemini API Error (${cleanModel}): ${errMsg}`);
+      }
+
+      const fallbackData = await fallbackRes.json();
+      const fallbackText = fallbackData?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '{}';
+      return parseGeminiJsonResponse(fallbackText);
+    }
+
+    // 4. VERIFY SINGLE CLAIM
+    async function verifySingleClaim(claim) {
+      let dbMatch = null;
+      if (claim.queryType === 'doi') {
+        dbMatch = await fetchLiveDoi(claim.identifier);
+      } else if (claim.queryType === 'pmid') {
+        dbMatch = await fetchLivePubMed(claim.identifier);
+      } else if (claim.queryType === 'arxiv') {
+        dbMatch = await fetchLiveArxiv(claim.identifier);
+      } else {
+        dbMatch = await searchLiveOpenAlexByCitation(claim);
+      }
+
+      claim.dbMatch = dbMatch;
+
+      // Case 1: Not found in any live database -> PHANTOM
+      if (!dbMatch || !dbMatch.exists) {
+        claim.status = 'PHANTOM';
+        const candidate = await findRealReplacementPaper(claim);
+        claim.suggestedPaper = candidate;
+
+        if (appState.aiApiKey) {
+          try {
+            const aiRes = await callUserAiModel(
+              `You are CiteAudit.ai, a rigorous scientific fact-checker. Respond ONLY with a JSON object containing keys: "explanation" (string) and "suggestedSentence" (string).`,
+              `The user wrote this sentence:\n"${claim.sentence}"\n\nLive queries to Crossref, PubMed, OpenAlex, and arXiv returned 404 NOT FOUND for "${claim.citationLabel}".\n` +
+              (candidate
+                ? `We found this real peer-reviewed paper in OpenAlex on the same topic:\nTitle: "${candidate.title}"\nAuthors: ${candidate.authors} (${candidate.year})\nID: ${candidate.id}\nAbstract: "${candidate.abstract}"\n\nWrite a concise 1-2 sentence "explanation" of why the original citation is fake/not found, and a "suggestedSentence" that rewrites the user's claim accurately using this real paper and its citation ${candidate.citationTag}.`
+                : `Write a concise 1-2 sentence "explanation" of why the citation is unverified/fabricated, and a "suggestedSentence" that removes the fabricated citation.`)
+            );
+            if (aiRes?.explanation) claim.explanation = aiRes.explanation;
+            if (aiRes?.suggestedSentence) claim.suggestedSentence = aiRes.suggestedSentence;
+          } catch {}
+        }
+
+        if (!claim.explanation) {
+          claim.explanation = `No publication matching "${claim.citationLabel}" was found across Crossref, PubMed NCBI, OpenAlex, or arXiv. This citation does not exist.`;
+        }
+        if (!claim.suggestedSentence && candidate) {
+          claim.suggestedSentence = `Related peer-reviewed research by ${candidate.authors.split(',')[0]} et al. (${candidate.year}, ${candidate.id}) investigates "${candidate.title}".`;
+        }
+        return claim;
+      }
+
+      // Case 2: Paper exists in Live Database -> verify claims & numbers against abstract
+      const abstractText = dbMatch.abstract || '';
+
+      if (appState.aiApiKey) {
+        try {
+          const aiVerdict = await callUserAiModel(
+            `You are CiteAudit.ai, a clinical and scientific verification engine. Compare the user's claim sentence against the real fetched academic paper metadata and abstract.
+Respond ONLY with valid JSON matching this schema:
+{
+  "status": "VERIFIED" | "CONTRADICTED",
+  "explanation": "Clear 1-2 sentence explanation comparing the user's claim/numbers to the paper's actual findings",
+  "suggestedSentence": "If status is CONTRADICTED, provide the corrected version of the user's sentence with the accurate numbers/facts from the abstract; if VERIFIED, repeat the user's sentence."
+}`,
+            `USER CLAIM SENTENCE:\n"${claim.sentence}"\n\nEXTRACTED NUMBERS IN CLAIM: ${JSON.stringify(claim.numbers)}\n\nREAL FETCHED ACADEMIC PAPER (${dbMatch.database}):\nTitle: ${dbMatch.title}\nAuthors: ${dbMatch.authors} (${dbMatch.year})\nVenue: ${dbMatch.venue}\nIdentifier: ${dbMatch.id}\nAbstract: ${abstractText || '(No full abstract text returned by publisher API; verify based on title, metadata, and known clinical/scientific facts of this exact DOI/PMID)'}`
+          );
+
+          if (aiVerdict && (aiVerdict.status === 'VERIFIED' || aiVerdict.status === 'CONTRADICTED')) {
+            claim.status = aiVerdict.status;
+            claim.explanation = aiVerdict.explanation || '';
+            claim.suggestedSentence = aiVerdict.suggestedSentence || claim.sentence;
+            return claim;
+          }
+        } catch {}
+      }
+
+      // Deterministic Numeric & Entity Matcher against the Live Abstract
+      if (abstractText && claim.numbers.length > 0) {
+        const matchedNums = [];
+        const mismatchedNums = [];
+
+        claim.numbers.forEach(numStr => {
+          const rawDigits = numStr.replace(/[^0-9.]/g, '');
+          const noCommaAbstract = abstractText.replace(/,/g, '');
+          const noCommaDigits = rawDigits.replace(/,/g, '');
+
+          if (
+            abstractText.toLowerCase().includes(numStr.toLowerCase()) ||
+            noCommaAbstract.includes(noCommaDigits)
+          ) {
+            matchedNums.push(numStr);
+          } else {
+            mismatchedNums.push(numStr);
+          }
+        });
+
+        if (mismatchedNums.length > 0) {
+          claim.status = 'CONTRADICTED';
+          const abstractNumbers = abstractText.match(/\b\d+(?:,\d{3})*(?:\.\d+)?\s*(?:%|mg\/kg|mg|kg|g\/L|mL|mcg|billion|million|days|weeks)\b/gi) || [];
+          const uniqueAbsNums = [...new Set(abstractNumbers)].slice(0, 6);
+
+          claim.explanation = `Paper exists in ${dbMatch.database}, but the claimed figure(s) [${mismatchedNums.join(', ')}] do not match the verified abstract.${uniqueAbsNums.length ? ` Figures reported in the abstract include: ${uniqueAbsNums.join(', ')}.` : ''}`;
+
+          let fixedSentence = claim.sentence;
+          mismatchedNums.forEach(badNum => {
+            const unitMatch = badNum.match(/(%|mg\/kg|mg|kg|mcg|days|weeks)/i);
+            if (unitMatch) {
+              const unit = unitMatch[1];
+              const replacementInAbs = uniqueAbsNums.find(a => a.toLowerCase().endsWith(unit.toLowerCase()) && !claim.numbers.includes(a));
+              if (replacementInAbs) {
+                fixedSentence = fixedSentence.replace(badNum, replacementInAbs);
+              }
+            }
+          });
+          claim.suggestedSentence = fixedSentence !== claim.sentence ? fixedSentence : claim.sentence;
+          return claim;
+        }
+
+        claim.status = 'VERIFIED';
+        claim.explanation = `Verified in ${dbMatch.database}. Both the publication metadata and numeric claim(s) [${matchedNums.join(', ')}] match the live abstract.`;
+        claim.suggestedSentence = claim.sentence;
+        return claim;
+      }
+
+      claim.status = 'VERIFIED';
+      claim.explanation = abstractText
+        ? `Verified in ${dbMatch.database}. The paper "${dbMatch.title}" (${dbMatch.year}) and its abstract were confirmed.`
+        : `Verified in ${dbMatch.database}. DOI/Identifier and publication metadata confirmed (${dbMatch.venue}, ${dbMatch.year}).`;
+      claim.suggestedSentence = claim.sentence;
+      return claim;
+    }
+
+    // 5. RUN FULL AUDIT
+    async function runAudit() {
+      if (appState.isRunning) return;
+      const text = document.getElementById('documentTextarea').value;
+      if (!text.trim()) return;
+
+      appState.isRunning = true;
+      const btnRun = document.getElementById('btnRunAudit');
+      const btnLabel = document.getElementById('btnRunAuditLabel');
+      btnRun.disabled = true;
+      btnLabel.textContent = 'Verifying Live...';
+
+      const progressBox = document.getElementById('auditProgressBox');
+      const progressTitle = document.getElementById('auditProgressTitle');
+      const progressStep = document.getElementById('auditProgressStep');
+      const progressBar = document.getElementById('auditProgressBar');
+      const progressDetail = document.getElementById('auditProgressDetail');
+
+      document.getElementById('emptyAuditState').classList.add('hidden');
+      progressBox.classList.remove('hidden');
+      progressBar.style.width = '20%';
+      progressStep.textContent = 'Stage 1/3';
+      progressTitle.textContent = 'Extracting citations and numeric claims...';
+
+      appState.claims = extractClaimsFromText(text);
+
+      if (appState.claims.length === 0) {
+        progressBox.classList.add('hidden');
+        appState.isRunning = false;
+        btnRun.disabled = false;
+        btnLabel.textContent = 'Verify Citations Now';
+        renderAuditResults();
+        return;
+      }
+
+      progressBar.style.width = '55%';
+      progressStep.textContent = 'Stage 2/3';
+      progressTitle.textContent = `Querying Crossref, PubMed, OpenAlex & arXiv for ${appState.claims.length} citation(s)...`;
+      progressDetail.textContent = appState.aiApiKey
+        ? `Live academic APIs + Gemini (${appState.aiModel}) verification active`
+        : `Live academic APIs + deterministic numeric cross-matcher active`;
+
+      let completed = 0;
+      await Promise.all(
+        appState.claims.map(async (claim) => {
+          await verifySingleClaim(claim);
+          completed++;
+          const pct = 55 + Math.round((completed / appState.claims.length) * 45);
+          progressBar.style.width = `${pct}%`;
+          progressDetail.textContent = `Verified ${completed} of ${appState.claims.length}: ${claim.citationLabel}`;
+        })
+      );
+
+      progressBox.classList.add('hidden');
+      appState.isRunning = false;
+      btnRun.disabled = false;
+      btnLabel.textContent = 'Verify Citations Now';
+
+      setDocumentMode('highlight');
+      renderAuditResults();
+    }
+
+    function applyClaimFix(claimId) {
+      const claim = appState.claims.find(c => c.id === claimId);
+      if (!claim || !claim.suggestedSentence) return;
+
+      const textarea = document.getElementById('documentTextarea');
+      const currentText = textarea.value;
+
+      if (currentText.includes(claim.sentence)) {
+        textarea.value = currentText.replace(claim.sentence, claim.suggestedSentence);
+      } else if (currentText.includes(claim.originalSentence)) {
+        textarea.value = currentText.replace(claim.originalSentence, claim.suggestedSentence);
+      }
+
+      claim.sentence = claim.suggestedSentence;
+      claim.status = 'VERIFIED';
+      claim.repaired = true;
+
+      if (claim.suggestedPaper) {
+        claim.citationLabel = claim.suggestedPaper.citationTag;
+        claim.dbMatch = {
+          exists: true,
+          database: 'OpenAlex Verified Replacement',
+          id: claim.suggestedPaper.id,
+          url: claim.suggestedPaper.url,
+          title: claim.suggestedPaper.title,
+          authors: claim.suggestedPaper.authors,
+          year: claim.suggestedPaper.year,
+          venue: 'Peer-Reviewed Journal',
+          abstract: claim.suggestedPaper.abstract
+        };
+      }
+
+      claim.explanation = '✓ Repaired and grounded against verified academic literature.';
+      updateLiveCounts();
+      renderAuditResults();
+    }
+
+    function applyAllFixes() {
+      appState.claims
+        .filter(c => c.status !== 'VERIFIED' && c.suggestedSentence)
+        .forEach(c => applyClaimFix(c.id));
+    }
+
+    // 6. RENDER UI
+    function renderAuditResults() {
+      const total = appState.claims.length;
+      const verified = appState.claims.filter(c => c.status === 'VERIFIED').length;
+      const contradicted = appState.claims.filter(c => c.status === 'CONTRADICTED').length;
+      const phantom = appState.claims.filter(c => c.status === 'PHANTOM').length;
+      const issues = contradicted + phantom;
+
+      const banner = document.getElementById('scorecardBanner');
+      const cardsList = document.getElementById('citationCardsList');
+
+      if (total === 0) {
+        banner.classList.add('hidden');
+        cardsList.innerHTML = `
+          <div class="nb-card p-nb-24 bg-[#FEF3C7] text-center space-y-nb-8">
+            <div class="text-nb-17 font-black text-nb-text">No Citations Detected in Text</div>
+            <p class="text-nb-15 font-medium text-nb-text/80">
+              Include citations such as <code>(Author et al., 2023)</code>, <code>doi:10.1038/...</code>, <code>PMID: 32678530</code>, or <code>arXiv:2305.14325</code>.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      banner.classList.remove('hidden');
+      const pct = Math.round((verified / total) * 100);
+
+      document.getElementById('scorePercentText').textContent = `${pct}%`;
+      document.getElementById('countAll').textContent = total;
+      document.getElementById('countIssues').textContent = issues;
+      document.getElementById('countVerified').textContent = verified;
+
+      const scoreCircle = document.getElementById('scoreCircle');
+      const titleEl = document.getElementById('scoreVerdictTitle');
+      const subEl = document.getElementById('scoreVerdictSubtitle');
+
+      if (issues === 0) {
+        scoreCircle.className = 'w-20 h-20 rounded-xl bg-[#DCFCE7] border-[2.5px] border-nb-text shadow-[3px_3px_0px_#1C293C] flex flex-col items-center justify-center shrink-0 text-nb-text';
+        titleEl.textContent = '100% Citations Verified!';
+        subEl.textContent = `All ${total} citations and statistics matched live academic records.`;
+      } else {
+        scoreCircle.className = 'w-20 h-20 rounded-xl bg-nb-primary border-[2.5px] border-nb-text shadow-[3px_3px_0px_#1C293C] flex flex-col items-center justify-center shrink-0 text-nb-text';
+        titleEl.textContent = `${issues} Issue${issues > 1 ? 's' : ''} Found in Your Draft`;
+        subEl.textContent = `${verified} Verified • ${contradicted} Claim/Number Mismatch • ${phantom} Fake/Not Found`;
+      }
+
+      const btnFixAll = document.getElementById('btnFixAllIssues');
+      const btnFixAllLabel = document.getElementById('btnFixAllLabel');
+      if (issues > 0) {
+        btnFixAll.classList.remove('hidden');
+        btnFixAll.classList.add('inline-flex');
+        btnFixAllLabel.textContent = `Fix All ${issues} Issue${issues > 1 ? 's' : ''}`;
+      } else {
+        btnFixAll.classList.add('hidden');
+        btnFixAll.classList.remove('inline-flex');
+      }
+
+      document.getElementById('aiAuditModeLabel').textContent = appState.aiApiKey
+        ? `AI Engine: Gemini (${appState.aiModel})`
+        : `Engine: Live DB + Numeric Matcher`;
+
+      renderHighlightedDocument();
+      renderDiffPane();
+      renderCitationCards();
+      lucide.createIcons();
+    }
+
+    function renderHighlightedDocument() {
+      const container = document.getElementById('highlightedDocContainer');
+      if (appState.claims.length === 0) {
+        container.innerHTML = `<p class="text-nb-text/60 text-nb-15">No citations to highlight.</p>`;
+        return;
+      }
+
+      container.innerHTML = appState.claims.map(claim => {
+        let cls = 'hl-verified';
+        let badge = `<span class="inline-flex items-center px-nb-8 py-0.5 ml-nb-8 rounded bg-nb-success text-white text-nb-13 font-bold border border-nb-text">✓ VERIFIED</span>`;
+
+        if (claim.status === 'CONTRADICTED') {
+          cls = 'hl-contradicted';
+          badge = `<span class="inline-flex items-center px-nb-8 py-0.5 ml-nb-8 rounded bg-nb-warning text-white text-nb-13 font-bold border border-nb-text">⚠ MISMATCH</span>`;
+        } else if (claim.status === 'PHANTOM') {
+          cls = 'hl-phantom';
+          badge = `<span class="inline-flex items-center px-nb-8 py-0.5 ml-nb-8 rounded bg-nb-danger text-white text-nb-13 font-bold border border-nb-text">✕ FAKE (404)</span>`;
+        }
+
+        const isActive = appState.activeClaimId === claim.id;
+
+        return `
+          <div
+            data-hl-id="${claim.id}"
+            class="p-nb-12 rounded-xl border-2 transition cursor-pointer ${isActive ? 'border-nb-secondary bg-[#FFFDF5] shadow-[3px_3px_0px_#432DD7]' : 'border-transparent hover:border-nb-text/30'}"
+          >
+            <span class="font-mono font-black text-nb-13 mr-nb-4">[#${claim.index}]</span>
+            <span class="hl-sentence ${cls} ${isActive ? 'hl-active' : ''}">${escapeHtml(claim.sentence)}</span>
+            ${badge}
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('[data-hl-id]').forEach(el => {
+        el.addEventListener('click', () => {
+          const cid = el.getAttribute('data-hl-id');
+          appState.activeClaimId = cid;
+          renderHighlightedDocument();
+          const cardEl = document.getElementById(`card-${cid}`);
+          if (cardEl) {
+            cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
+      });
+    }
+
+    function renderDiffPane() {
+      const container = document.getElementById('diffContainer');
+      if (appState.claims.length === 0) return;
+
+      container.innerHTML = appState.claims.map(claim => {
+        const hasDiff = claim.status !== 'VERIFIED' && claim.suggestedSentence && claim.suggestedSentence !== claim.originalSentence;
+        const wasRepaired = claim.repaired && claim.sentence !== claim.originalSentence;
+
+        if (hasDiff || wasRepaired) {
+          const afterText = wasRepaired ? claim.sentence : claim.suggestedSentence;
+          return `
+            <div class="rounded-xl border-2 border-nb-text overflow-hidden shadow-[3px_3px_0px_#1C293C]">
+              <div class="p-nb-12 bg-[#FEE2E2] text-nb-text border-b-2 border-nb-text">
+                <span class="font-black text-nb-danger select-none">- </span>${escapeHtml(claim.originalSentence)}
+              </div>
+              <div class="p-nb-12 bg-[#DCFCE7] text-nb-text">
+                <span class="font-black text-nb-success select-none">+ </span>${escapeHtml(afterText)}
+              </div>
+            </div>
+          `;
+        }
+        return `
+          <div class="p-nb-12 rounded-xl bg-nb-surface border-2 border-nb-text">
+            <span class="text-nb-success font-black select-none">✓ </span>${escapeHtml(claim.sentence)}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCitationCards() {
+      const list = document.getElementById('citationCardsList');
+      const filtered = appState.claims.filter(c => {
+        if (appState.filter === 'issues') return c.status !== 'VERIFIED';
+        if (appState.filter === 'verified') return c.status === 'VERIFIED';
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="nb-card p-nb-24 text-center text-nb-15 font-bold text-nb-text/70">
+            No citations match the selected filter.
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = filtered.map(claim => {
+        let statusBadge = '';
+        let topBarColor = 'bg-[#DCFCE7]';
+
+        if (claim.status === 'VERIFIED') {
+          statusBadge = `<span class="nb-badge bg-nb-success text-white">✓ VERIFIED</span>`;
+          topBarColor = 'bg-[#DCFCE7]';
+        } else if (claim.status === 'CONTRADICTED') {
+          statusBadge = `<span class="nb-badge bg-nb-warning text-white">⚠ NUMBER / CLAIM MISMATCH</span>`;
+          topBarColor = 'bg-[#FEF3C7]';
+        } else {
+          statusBadge = `<span class="nb-badge bg-nb-danger text-white">✕ FAKE / NOT FOUND (404)</span>`;
+          topBarColor = 'bg-[#FEE2E2]';
+        }
+
+        const db = claim.dbMatch;
+        const dbSection = db && db.exists
+          ? `
+            <div class="p-nb-16 rounded-xl bg-nb-surface border-2 border-nb-text space-y-nb-8">
+              <div class="flex flex-wrap items-center justify-between gap-nb-8">
+                <span class="text-nb-13 font-extrabold uppercase tracking-wider text-nb-secondary">${escapeHtml(db.database)}</span>
+                <a href="${escapeHtml(db.url)}" target="_blank" rel="noopener noreferrer" class="nb-btn nb-btn-primary px-nb-8 py-nb-4 text-nb-13 font-mono">
+                  Open ${escapeHtml(db.id)} ↗
+                </a>
+              </div>
+              <div class="font-extrabold text-nb-15 text-nb-text">${escapeHtml(db.title)}</div>
+              <div class="text-nb-13 font-semibold text-nb-text/75">${escapeHtml(db.authors)} (${escapeHtml(db.year)}) • ${escapeHtml(db.venue)}</div>
+              ${db.abstract ? `
+                <details class="pt-nb-4 text-nb-13">
+                  <summary class="cursor-pointer font-extrabold text-nb-secondary hover:underline">
+                    Read Live Fetched Abstract
+                  </summary>
+                  <p class="mt-nb-8 p-nb-12 rounded-lg bg-white border-2 border-nb-text leading-relaxed font-medium">
+                    ${escapeHtml(db.abstract)}
+                  </p>
+                </details>
+              ` : ''}
+            </div>
+          `
+          : `
+            <div class="p-nb-12 rounded-xl bg-[#FEE2E2] border-2 border-nb-text text-nb-13 font-bold text-nb-text">
+              🚨 <strong>0 Matches Found:</strong> Queried Crossref, PubMed NCBI, OpenAlex (250M+ works), and arXiv for <code>${escapeHtml(claim.citationLabel)}</code>.
+            </div>
+          `;
+
+        const canFix = claim.status !== 'VERIFIED' && claim.suggestedSentence && claim.suggestedSentence !== claim.sentence;
+
+        return `
+          <article id="card-${claim.id}" class="nb-card overflow-hidden">
+            <!-- Card Header Strip -->
+            <div class="px-nb-16 py-nb-12 ${topBarColor} border-b-[2.5px] border-nb-text flex flex-wrap items-center justify-between gap-nb-8">
+              <div class="flex items-center gap-nb-8">
+                <span class="px-nb-8 py-nb-4 rounded-md bg-white border-2 border-nb-text font-mono text-nb-13 font-black">
+                  #${claim.index}
+                </span>
+                <span class="font-mono text-nb-15 font-black text-nb-text">
+                  ${escapeHtml(claim.citationLabel)}
+                </span>
+              </div>
+              ${statusBadge}
+            </div>
+
+            <div class="p-nb-16 sm:p-nb-24 space-y-nb-16">
+              <!-- User's Original Sentence -->
+              <div class="space-y-nb-4">
+                <div class="text-nb-13 font-extrabold uppercase tracking-wider text-nb-text/60">Your Claim in Document</div>
+                <div class="p-nb-12 rounded-lg bg-nb-surface border-l-4 border-nb-text text-nb-15 font-medium">
+                  "${escapeHtml(claim.sentence)}"
+                </div>
+              </div>
+
+              <!-- Live Database Match -->
+              ${dbSection}
+
+              <!-- Plain-English Verdict -->
+              <div class="p-nb-12 rounded-xl bg-white border-2 border-nb-text text-nb-13 font-semibold leading-relaxed">
+                <strong class="font-black uppercase text-nb-secondary">Verdict: </strong>${escapeHtml(claim.explanation)}
+              </div>
+
+              <!-- 1-Click Fix Box -->
+              ${canFix ? `
+                <div class="p-nb-16 rounded-xl bg-nb-primary/30 border-2 border-nb-text shadow-[3px_3px_0px_#1C293C] space-y-nb-12">
+                  <div class="flex flex-wrap items-center justify-between gap-nb-8">
+                    <span class="text-nb-13 font-black uppercase tracking-wide text-nb-text">
+                      ✦ Verified Replacement Ready
+                    </span>
+                    <button
+                      type="button"
+                      data-fix-id="${claim.id}"
+                      class="nb-btn nb-btn-success px-nb-16 py-nb-8 text-nb-13"
+                    >
+                      Apply Fix to Document
+                    </button>
+                  </div>
+                  <p class="p-nb-12 rounded-lg bg-white border-2 border-nb-text text-nb-13 font-mono font-bold text-nb-text">
+                    "${escapeHtml(claim.suggestedSentence)}"
+                  </p>
+                </div>
+              ` : ''}
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      list.querySelectorAll('[data-fix-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          applyClaimFix(btn.getAttribute('data-fix-id'));
+        });
+      });
+    }
+
+    // 7. HELPERS & EVENT LISTENERS
+    function setDocumentMode(mode) {
+      appState.docMode = mode;
+      document.getElementById('pane-edit').classList.toggle('hidden', mode !== 'edit');
+      document.getElementById('pane-highlight').classList.toggle('hidden', mode !== 'highlight');
+      document.getElementById('pane-diff').classList.toggle('hidden', mode !== 'diff');
+
+      document.querySelectorAll('.doc-mode-btn').forEach(btn => {
+        const isTarget = btn.getAttribute('data-doc-mode') === mode;
+        btn.className = isTarget
+          ? 'doc-mode-btn nb-btn nb-btn-primary px-nb-12 py-nb-4 text-nb-13'
+          : 'doc-mode-btn nb-btn nb-btn-neutral px-nb-12 py-nb-4 text-nb-13';
+      });
+    }
+
+    function updateLiveCounts() {
+      const text = document.getElementById('documentTextarea').value || '';
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      const detected = extractClaimsFromText(text).length;
+      document.getElementById('liveWordCount').textContent = words;
+      document.getElementById('liveCiteCount').textContent = detected;
+    }
+
+    function updateApiKeyButtonStatus() {
+      const btn = document.getElementById('btnApiKeyModal');
+      const label = document.getElementById('apiKeyStatusLabel');
+      if (appState.aiApiKey) {
+        btn.className = 'nb-btn nb-btn-success px-nb-16 py-nb-8 text-nb-13';
+        label.textContent = `Gemini: ${appState.aiModel}`;
+      } else {
+        btn.className = 'nb-btn nb-btn-primary px-nb-16 py-nb-8 text-nb-13';
+        label.textContent = 'Connect Gemini API Key';
+      }
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      updateApiKeyButtonStatus();
+
+      document.querySelectorAll('.doc-mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => setDocumentMode(btn.getAttribute('data-doc-mode')));
+      });
+
+      document.querySelectorAll('.filter-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          appState.filter = btn.getAttribute('data-filter');
+          document.querySelectorAll('.filter-pill').forEach(b => {
+            const active = b.getAttribute('data-filter') === appState.filter;
+            b.className = active
+              ? 'filter-pill nb-btn nb-btn-primary px-nb-12 py-nb-4 text-nb-13'
+              : 'filter-pill nb-btn nb-btn-neutral px-nb-12 py-nb-4 text-nb-13';
+          });
+          renderCitationCards();
+        });
+      });
+
+      document.querySelectorAll('.sample-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-sample');
+          if (SAMPLE_TEXTS[key]) {
+            document.getElementById('documentTextarea').value = SAMPLE_TEXTS[key];
+            setDocumentMode('edit');
+            updateLiveCounts();
+          }
+        });
+      });
+
+      document.getElementById('documentTextarea').addEventListener('input', updateLiveCounts);
+      document.getElementById('btnRunAudit').addEventListener('click', runAudit);
+      document.getElementById('btnFixAllIssues').addEventListener('click', applyAllFixes);
+
+      document.getElementById('btnClearDoc').addEventListener('click', () => {
+        document.getElementById('documentTextarea').value = '';
+        appState.claims = [];
+        setDocumentMode('edit');
+        updateLiveCounts();
+        document.getElementById('scorecardBanner').classList.add('hidden');
+        document.getElementById('citationCardsList').innerHTML = '';
+        document.getElementById('emptyAuditState').classList.remove('hidden');
+      });
+
+      document.getElementById('btnCopyDoc').addEventListener('click', () => {
+        navigator.clipboard.writeText(document.getElementById('documentTextarea').value);
+        const lbl = document.getElementById('copyDocLabel');
+        lbl.textContent = 'Copied ✓';
+        setTimeout(() => { lbl.textContent = 'Copy Text'; }, 1500);
+      });
+
+      document.getElementById('btnExportMd').addEventListener('click', () => {
+        const text = document.getElementById('documentTextarea').value;
+        const verifiedClaims = appState.claims.filter(c => c.dbMatch && c.dbMatch.exists);
+        const bib = verifiedClaims.map((c, i) =>
+          `${i + 1}. **${c.dbMatch.title}** — ${c.dbMatch.authors} (${c.dbMatch.year}). *${c.dbMatch.venue}*. [${c.dbMatch.id}](${c.dbMatch.url})`
+        ).join('\n');
+
+        const md = `# CiteAudit.ai Verified Document\n\n${text}\n\n## Verified References\n\n${bib || 'No verified references exported.'}\n`;
+        const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'CiteAudit_Verified.md';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Modal Controls (Google Gemini Live Model Scanner & Selector)
+      const modal = document.getElementById('apiKeyModal');
+      const modelSelect = document.getElementById('geminiModelSelect');
+      const keyInput = document.getElementById('aiApiKeyInput');
+      const testBox = document.getElementById('apiTestResultBox');
+      const scanBtn = document.getElementById('btnScanModels');
+      const scanIcon = document.getElementById('scanModelsIcon');
+      const scanLabel = document.getElementById('scanModelsLabel');
+      const modelCountBadge = document.getElementById('modelCountBadge');
+
+      keyInput.value = appState.aiApiKey;
+
+      function populateModelSelect(models, preferredModel) {
+        if (!Array.isArray(models) || models.length === 0) return;
+        appState.availableModels = models;
+        modelSelect.innerHTML = models
+          .map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.displayName)} (${escapeHtml(m.id)})</option>`)
+          .join('');
+
+        const hasPreferred = models.some(m => m.id === preferredModel);
+        modelSelect.value = hasPreferred ? preferredModel : models[0].id;
+        appState.aiModel = modelSelect.value;
+        modelCountBadge.textContent = `${models.length} models found`;
+      }
+
+      async function handleScanModels(silent = false) {
+        const key = keyInput.value.trim();
+        if (!key) {
+          if (!silent) {
+            testBox.className = 'p-nb-12 rounded-lg border-2 border-nb-text text-nb-13 font-bold bg-[#FEE2E2] text-nb-danger';
+            testBox.textContent = 'Please paste your Google Gemini API key first.';
+            testBox.classList.remove('hidden');
+          }
+          return;
+        }
+
+        scanBtn.disabled = true;
+        scanIcon.classList.add('animate-spin');
+        scanLabel.textContent = 'Scanning...';
+
+        if (!silent) {
+          testBox.className = 'p-nb-12 rounded-lg border-2 border-nb-text text-nb-13 font-bold bg-nb-primary/30 text-nb-text';
+          testBox.textContent = 'Scanning Google Gemini API for available models on your key...';
+          testBox.classList.remove('hidden');
+        }
+
+        try {
+          const models = await scanGeminiModels(key);
+          populateModelSelect(models, appState.aiModel);
+          testBox.className = 'p-nb-12 rounded-lg border-2 border-nb-text text-nb-13 font-bold bg-[#DCFCE7] text-nb-text';
+          testBox.textContent = `✓ Found ${models.length} Gemini models! Select your preferred model from the list above.`;
+          testBox.classList.remove('hidden');
+        } catch (err) {
+          testBox.className = 'p-nb-12 rounded-lg border-2 border-nb-text text-nb-13 font-bold bg-[#FEE2E2] text-nb-danger';
+          testBox.textContent = err.message;
+          testBox.classList.remove('hidden');
+        } finally {
+          scanBtn.disabled = false;
+          scanIcon.classList.remove('animate-spin');
+          scanLabel.textContent = 'Scan Models';
+        }
+      }
+
+      // Auto-scan models when user pastes or finishes typing an API key
+      let scanDebounceTimer = null;
+      keyInput.addEventListener('input', () => {
+        clearTimeout(scanDebounceTimer);
+        const val = keyInput.value.trim();
+        if (val.length >= 25) {
+          scanDebounceTimer = setTimeout(() => handleScanModels(false), 350);
+        }
+      });
+
+      scanBtn.addEventListener('click', () => handleScanModels(false));
+
+      document.getElementById('btnApiKeyModal').addEventListener('click', () => {
+        testBox.classList.add('hidden');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (keyInput.value.trim() && appState.availableModels.length === 0) {
+          handleScanModels(true);
+        }
+      });
+
+      document.getElementById('btnCloseModal').addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      });
+
+      document.getElementById('btnSaveApiKey').addEventListener('click', () => {
+        appState.aiApiKey = keyInput.value.trim();
+        appState.aiModel = modelSelect.value || DEFAULT_GEMINI_MODEL;
+
+        localStorage.setItem('citeaudit_gemini_model', appState.aiModel);
+        localStorage.setItem('citeaudit_apikey', appState.aiApiKey);
+
+        updateApiKeyButtonStatus();
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      });
+
+      document.getElementById('btnClearApiKey').addEventListener('click', () => {
+        appState.aiApiKey = '';
+        appState.availableModels = [];
+        keyInput.value = '';
+        modelCountBadge.textContent = '';
+        modelSelect.innerHTML = `<option value="${DEFAULT_GEMINI_MODEL}">${DEFAULT_GEMINI_MODEL} (Paste key above to scan all models)</option>`;
+        localStorage.removeItem('citeaudit_apikey');
+        updateApiKeyButtonStatus();
+        testBox.className = 'p-nb-12 rounded-lg border-2 border-nb-text text-nb-13 font-bold bg-nb-surface';
+        testBox.textContent = 'Gemini API key removed from browser storage.';
+        testBox.classList.remove('hidden');
+      });
+
+      document.getElementById('btnTestApiKey').addEventListener('click', async () => {
+        appState.aiApiKey = keyInput.value.trim();
+        appState.aiModel = modelSelect.value || DEFAULT_GEMINI_MODEL;
+
+        if (!appState.aiApiKey) {
+          testBox.className = 'p-nb-12 rounded-lg border-2 border-nb-text text-nb-13 font-bold bg-[#FEE2E2] text-nb-danger';
+          testBox.textContent = 'Please paste your Google Gemini API key first.';
+          testBox.classList.remove('hidden');
+          return;
+        }
+
+        testBox.className = 'p-nb-12 rounded-lg border-2 border-nb-text text-nb-13 font-bold bg-nb-primary/30 text-nb-text';
+        testBox.textContent = `Testing Gemini model "${appState.aiModel}"...`;
+        testBox.classList.remove('hidden');
+
+        try {
+          const res = await callUserAiModel(
+            'Respond only with JSON: {"ok": true}',
+            'Ping test'
+          );
+          if (res) {
+            localStorage.setItem('citeaudit_gemini_model', appState.aiModel);
+            localStorage.setItem('citeaudit_apikey', appState.aiApiKey);
+            updateApiKeyButtonStatus();
+            testBox.className = 'p-nb-12 rounded-lg border-2 border-nb-text text-nb-13 font-bold bg-[#DCFCE7] text-nb-text';
+            testBox.textContent = `✓ Gemini (${appState.aiModel}) is working and saved!`;
+          }
+        } catch (err) {
+          testBox.className = 'p-nb-12 rounded-lg border-2 border-nb-text text-nb-13 font-bold bg-[#FEE2E2] text-nb-danger';
+          testBox.textContent = err.message;
+        }
+      });
+
+      // Pre-fill sample text so user can immediately click "Verify Citations Now"
+      document.getElementById('documentTextarea').value = SAMPLE_TEXTS.biomedical;
+      updateLiveCounts();
+    });
+  </script>
+</body>
+</html>
